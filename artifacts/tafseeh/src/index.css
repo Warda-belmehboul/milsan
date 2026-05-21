@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Tajawal:wght@300;400;500;700;800&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: 'Tajawal', sans-serif;
+  --font-display: 'Amiri', serif;
+
+  --color-background: hsl(40 30% 97%);
+  --color-foreground: hsl(28 60% 18%);
+
+  --color-card: hsl(38 40% 95%);
+  --color-card-foreground: hsl(28 60% 18%);
+
+  --color-popover: hsl(38 40% 96%);
+  --color-popover-foreground: hsl(28 60% 18%);
+
+  --color-primary: hsl(30 75% 26%);
+  --color-primary-foreground: hsl(0 0% 100%);
+
+  --color-secondary: hsl(32 65% 35%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+
+  --color-muted: hsl(36 25% 88%);
+  --color-muted-foreground: hsl(28 30% 42%);
+
+  --color-accent: hsl(38 70% 50%);
+  --color-accent-foreground: hsl(0 0% 100%);
+
+  --color-destructive: hsl(0 60% 45%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+
+  --color-border: hsl(30 30% 80%);
+  --color-input: hsl(38 30% 93%);
+  --color-ring: hsl(30 75% 26%);
+
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+}
+
+:root {
+  --background: 40 30% 97%;
+  --foreground: 28 60% 18%;
+  --card: 38 40% 95%;
+  --card-foreground: 28 60% 18%;
+  --popover: 38 40% 96%;
+  --popover-foreground: 28 60% 18%;
+  --primary: 30 75% 26%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 32 65% 35%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 36 25% 88%;
+  --muted-foreground: 28 30% 42%;
+  --accent: 38 70% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 60% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 30 30% 80%;
+  --input: 38 30% 93%;
+  --ring: 30 75% 26%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    direction: rtl;
+    background-color: hsl(var(--background));
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%237B4A1A' stroke-width='0.4' opacity='0.12'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M15 15 L45 15 L45 45 L15 45 Z'/%3E%3Cpath d='M0 0 L15 15 M60 0 L45 15 M0 60 L15 45 M60 60 L45 45'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 60px 60px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display leading-tight;
+  }
+
+  ::-webkit-scrollbar { width: 7px; }
+  ::-webkit-scrollbar-track { @apply bg-muted/50; }
+  ::-webkit-scrollbar-thumb { @apply bg-primary/30 rounded-full hover:bg-primary/50 transition-colors; }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-md border border-primary/15 shadow-lg shadow-primary/8;
+  }
+
+  .glass-panel-strong {
+    @apply bg-white/95 backdrop-blur-xl border border-primary/20 shadow-xl shadow-primary/10;
+  }
+
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(30 75% 22%), hsl(32 70% 35%), hsl(38 70% 45%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(38 85% 40%), hsl(40 80% 55%), hsl(38 75% 45%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/20;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl font-bold bg-primary text-primary-foreground shadow-md hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 rounded-xl font-bold bg-secondary text-secondary-foreground shadow-md hover:shadow-lg hover:shadow-secondary/25 hover:-translate-y-0.5 transition-all;
+  }
+
+  .section-divider {
+    @apply w-32 h-0.5 bg-gradient-to-l from-transparent via-primary to-transparent mx-auto my-6 rounded-full opacity-50;
+  }
+
+  .badge-primary {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full bg-primary/12 text-primary border border-primary/25;
+  }
+
+  .input-field {
+    @apply w-full p-3 rounded-xl bg-input border border-border outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm transition-all;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { @apply bg-transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-primary/25 rounded-full; }
+
+  .diamond-tile {
+    transform: rotate(45deg);
+    border-radius: 18px;
+  }
+
+  .diamond-tile-inner {
+    transform: rotate(-45deg);
+  }
+}

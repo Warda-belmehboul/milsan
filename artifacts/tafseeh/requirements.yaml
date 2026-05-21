@@ -1,0 +1,23 @@
+packages:
+  "framer-motion": "For elegant page transitions and interactive micro-animations suitable for a premium platform."
+  "recharts": "For rendering beautiful admin statistics dashboards."
+  "react-hook-form": "For robust form state management."
+  "@hookform/resolvers": "For Zod validation integration with forms."
+  "clsx": "Utility for constructing className strings conditionally."
+  "tailwind-merge": "Utility to merge tailwind classes without style conflicts."
+
+images:
+  - path: "artifacts/tafseeh/public/images/hero-bg.png"
+    description: "Luxurious dark parchment texture with subtle gold Islamic geometric patterns and elegant, abstract Arabic calligraphy overlays. Deep burgundy shadows, rich cinematic lighting, scholarly atmosphere."
+    aspect_ratio: "16:9"
+  - path: "artifacts/tafseeh/public/images/pattern-bg.png"
+    description: "Seamless Islamic geometric star pattern in dark burgundy and faded gold on a dark background, minimal, elegant, low contrast for use as a subtle background overlay."
+    aspect_ratio: "1:1"
+  - path: "artifacts/tafseeh/public/images/course-placeholder.png"
+    description: "A beautiful old Arabic manuscript or open book with an ornate quill pen and inkwell, illuminated by warm golden candlelight, deep rich colors."
+    aspect_ratio: "16:9"
+
+notes:
+  - The app requires RTL layout (Arabic).
+  - API hooks are imported directly from @workspace/api-client-react.
+  - The spelling dictation feature utilizes the browser's native Web Speech API (speechSynthesis) for reading Arabic text aloud.
