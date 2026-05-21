@@ -1,0 +1,986 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: منصة التفصيح والتحسين API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: dictionary
+    description: المعجم الرقمي
+  - name: tafseeh
+    description: التفصيح الآلي
+  - name: proofreaders
+    description: المفصحون البشريون
+  - name: rhymes
+    description: العبارات المسجوعة
+  - name: courses
+    description: الدورات التدريبية
+  - name: quiz
+    description: لعبة الأفصح
+  - name: spelling
+    description: مصحح الإملاء
+  - name: admin
+    description: لوحة التحكم
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ---- Dictionary ----
+  /dictionary/search:
+    get:
+      operationId: dictionarySearch
+      tags: [dictionary]
+      summary: Search dictionary
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dictionary results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DictionaryEntry"
+  /dictionary:
+    get:
+      operationId: getDictionaryEntries
+      tags: [dictionary]
+      summary: Get all dictionary entries
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Dictionary entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedDictionaryEntries"
+    post:
+      operationId: createDictionaryEntry
+      tags: [dictionary, admin]
+      summary: Create a new dictionary entry (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDictionaryEntry"
+      responses:
+        "201":
+          description: Created entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DictionaryEntry"
+  /dictionary/{id}:
+    put:
+      operationId: updateDictionaryEntry
+      tags: [dictionary, admin]
+      summary: Update a dictionary entry (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDictionaryEntry"
+      responses:
+        "200":
+          description: Updated entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DictionaryEntry"
+    delete:
+      operationId: deleteDictionaryEntry
+      tags: [dictionary, admin]
+      summary: Delete a dictionary entry (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ---- Auto Tafseeh ----
+  /tafseeh/auto:
+    post:
+      operationId: autoTafseeh
+      tags: [tafseeh]
+      summary: Automatic text improvement (AI-powered)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutoTafseehRequest"
+      responses:
+        "200":
+          description: Improved text options
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutoTafseehResponse"
+
+  # ---- Proofreaders ----
+  /proofreaders:
+    get:
+      operationId: getProofreaders
+      tags: [proofreaders]
+      summary: List all proofreaders
+      responses:
+        "200":
+          description: List of proofreaders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Proofreader"
+    post:
+      operationId: registerProofreader
+      tags: [proofreaders]
+      summary: Register as a proofreader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProofreader"
+      responses:
+        "201":
+          description: Registered proofreader
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proofreader"
+  /proofreaders/{id}:
+    get:
+      operationId: getProofreader
+      tags: [proofreaders]
+      summary: Get a proofreader profile
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Proofreader profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proofreader"
+    put:
+      operationId: updateProofreader
+      tags: [proofreaders, admin]
+      summary: Update proofreader status (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProofreaderStatus"
+      responses:
+        "200":
+          description: Updated proofreader
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proofreader"
+  /proofreaders/{id}/sessions:
+    post:
+      operationId: createSession
+      tags: [proofreaders]
+      summary: Book a session with a proofreader
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSession"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+  /sessions:
+    get:
+      operationId: getSessions
+      tags: [proofreaders, admin]
+      summary: Get all sessions (admin)
+      responses:
+        "200":
+          description: Sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Session"
+
+  # ---- Rhymes ----
+  /rhymes:
+    get:
+      operationId: getRhymes
+      tags: [rhymes]
+      summary: Get rhyming phrases
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Rhyming phrases
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedRhymes"
+    post:
+      operationId: createRhyme
+      tags: [rhymes, admin]
+      summary: Add a new rhyming phrase (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRhyme"
+      responses:
+        "201":
+          description: Created rhyme
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rhyme"
+  /rhymes/{id}:
+    put:
+      operationId: updateRhyme
+      tags: [rhymes, admin]
+      summary: Update a rhyming phrase (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRhyme"
+      responses:
+        "200":
+          description: Updated rhyme
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rhyme"
+    delete:
+      operationId: deleteRhyme
+      tags: [rhymes, admin]
+      summary: Delete a rhyming phrase (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ---- Courses ----
+  /courses:
+    get:
+      operationId: getCourses
+      tags: [courses]
+      summary: Get all courses
+      responses:
+        "200":
+          description: Courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+    post:
+      operationId: createCourse
+      tags: [courses, admin]
+      summary: Create a course (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourse"
+      responses:
+        "201":
+          description: Created course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+  /courses/{id}:
+    put:
+      operationId: updateCourse
+      tags: [courses, admin]
+      summary: Update a course (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourse"
+      responses:
+        "200":
+          description: Updated course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+    delete:
+      operationId: deleteCourse
+      tags: [courses, admin]
+      summary: Delete a course (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ---- Quiz ----
+  /quiz/question:
+    get:
+      operationId: getQuizQuestion
+      tags: [quiz]
+      summary: Get a random quiz question
+      responses:
+        "200":
+          description: Quiz question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizQuestion"
+  /quiz/questions:
+    get:
+      operationId: getQuizQuestions
+      tags: [quiz, admin]
+      summary: Get all quiz questions (admin)
+      responses:
+        "200":
+          description: All quiz questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuizQuestion"
+    post:
+      operationId: createQuizQuestion
+      tags: [quiz, admin]
+      summary: Create a quiz question (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuizQuestion"
+      responses:
+        "201":
+          description: Created question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizQuestion"
+  /quiz/questions/{id}:
+    delete:
+      operationId: deleteQuizQuestion
+      tags: [quiz, admin]
+      summary: Delete a quiz question (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+  /quiz/answer:
+    post:
+      operationId: submitQuizAnswer
+      tags: [quiz]
+      summary: Submit a quiz answer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizAnswerRequest"
+      responses:
+        "200":
+          description: Answer result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizAnswerResponse"
+
+  # ---- Spelling / Dictation ----
+  /spelling/text:
+    get:
+      operationId: getSpellingText
+      tags: [spelling]
+      summary: Get a random text for spelling dictation
+      responses:
+        "200":
+          description: Spelling text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpellingText"
+  /spelling/check:
+    post:
+      operationId: checkSpelling
+      tags: [spelling]
+      summary: Check spelling of user input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpellingCheckRequest"
+      responses:
+        "200":
+          description: Spelling check result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpellingCheckResponse"
+  /spelling/texts:
+    post:
+      operationId: createSpellingText
+      tags: [spelling, admin]
+      summary: Create spelling text (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSpellingText"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpellingText"
+
+  # ---- Admin Stats ----
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get platform statistics
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    DictionaryEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        word:
+          type: string
+        meaning:
+          type: string
+        phrases:
+          type: array
+          items:
+            type: string
+        examples:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, word, meaning, phrases, examples]
+
+    CreateDictionaryEntry:
+      type: object
+      properties:
+        word:
+          type: string
+        meaning:
+          type: string
+        phrases:
+          type: array
+          items:
+            type: string
+        examples:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+      required: [word, meaning, phrases, examples]
+
+    PaginatedDictionaryEntries:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DictionaryEntry"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    AutoTafseehRequest:
+      type: object
+      properties:
+        text:
+          type: string
+      required: [text]
+
+    AutoTafseehResponse:
+      type: object
+      properties:
+        original:
+          type: string
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/TafseehSuggestion"
+      required: [original, suggestions]
+
+    TafseehSuggestion:
+      type: object
+      properties:
+        text:
+          type: string
+        style:
+          type: string
+        explanation:
+          type: string
+      required: [text, style, explanation]
+
+    Proofreader:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        bio:
+          type: string
+        specialization:
+          type: string
+        rating:
+          type: number
+        pricePerHour:
+          type: number
+        status:
+          type: string
+          enum: [pending, approved, suspended]
+        sessionsCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, bio, specialization, rating, pricePerHour, status]
+
+    CreateProofreader:
+      type: object
+      properties:
+        name:
+          type: string
+        bio:
+          type: string
+        specialization:
+          type: string
+        pricePerHour:
+          type: number
+        email:
+          type: string
+      required: [name, bio, specialization, pricePerHour, email]
+
+    UpdateProofreaderStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, suspended]
+      required: [status]
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+        proofreaderId:
+          type: integer
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+        text:
+          type: string
+        price:
+          type: number
+        status:
+          type: string
+          enum: [pending, in_progress, completed, cancelled]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, proofreaderId, clientName, clientEmail, price, status]
+
+    CreateSession:
+      type: object
+      properties:
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+        text:
+          type: string
+        price:
+          type: number
+      required: [clientName, clientEmail, price]
+
+    Rhyme:
+      type: object
+      properties:
+        id:
+          type: integer
+        phrase:
+          type: string
+        explanation:
+          type: string
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, phrase, explanation]
+
+    CreateRhyme:
+      type: object
+      properties:
+        phrase:
+          type: string
+        explanation:
+          type: string
+        category:
+          type: string
+      required: [phrase, explanation]
+
+    PaginatedRhymes:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rhyme"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        instructor:
+          type: string
+        duration:
+          type: string
+        link:
+          type: string
+        isFree:
+          type: boolean
+        seats:
+          type: integer
+        schedule:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, description, instructor, duration, link, isFree]
+
+    CreateCourse:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        instructor:
+          type: string
+        duration:
+          type: string
+        link:
+          type: string
+        isFree:
+          type: boolean
+        seats:
+          type: integer
+        schedule:
+          type: string
+      required: [title, description, instructor, duration, link, isFree]
+
+    QuizQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        explanation:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, question, options, correctIndex, explanation]
+
+    CreateQuizQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        explanation:
+          type: string
+      required: [question, options, correctIndex, explanation]
+
+    QuizAnswerRequest:
+      type: object
+      properties:
+        questionId:
+          type: integer
+        selectedIndex:
+          type: integer
+      required: [questionId, selectedIndex]
+
+    QuizAnswerResponse:
+      type: object
+      properties:
+        correct:
+          type: boolean
+        correctIndex:
+          type: integer
+        explanation:
+          type: string
+      required: [correct, correctIndex, explanation]
+
+    SpellingText:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        category:
+          type: string
+      required: [id, text]
+
+    CreateSpellingText:
+      type: object
+      properties:
+        text:
+          type: string
+        category:
+          type: string
+      required: [text]
+
+    SpellingCheckRequest:
+      type: object
+      properties:
+        original:
+          type: string
+        userInput:
+          type: string
+      required: [original, userInput]
+
+    SpellingCheckResponse:
+      type: object
+      properties:
+        score:
+          type: number
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpellingError"
+        feedback:
+          type: string
+      required: [score, errors, feedback]
+
+    SpellingError:
+      type: object
+      properties:
+        position:
+          type: integer
+        expected:
+          type: string
+        got:
+          type: string
+        rule:
+          type: string
+      required: [position, expected, got, rule]
+
+    AdminStats:
+      type: object
+      properties:
+        dictionaryCount:
+          type: integer
+        proofreaderCount:
+          type: integer
+        sessionCount:
+          type: integer
+        rhymesCount:
+          type: integer
+        coursesCount:
+          type: integer
+        quizQuestionsCount:
+          type: integer
+      required: [dictionaryCount, proofreaderCount, sessionCount, rhymesCount, coursesCount, quizQuestionsCount]
